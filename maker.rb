@@ -2,16 +2,22 @@
 #
 # Ruby uni-ast-gen
 
+# OLD ripper version
+
 require 'ripper'
 require_relative 'ast_node_classes.rb'
+abort("Must supply a program") unless ARGV[0]
 
-ripper_ast = Ripper.sexp(ARGV[0])
+input_file = File.read ARGV[0] + ".rb"
+ripper_ast = Ripper.sexp(input_file)
 
 output_hash_uast = { Meta: { Language: "Ruby" } }
 
 base_node_list = ripper_ast[1].map do |stmt|
-  Uast.uast_node_from_rtree(stmt)
+  UastNode.uast_node_from_rtree(stmt)
 end
+
+pp base_node_list
 
 # def get_all_statments_in(ast_node)
 #   list = []
