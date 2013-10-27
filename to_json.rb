@@ -18,7 +18,7 @@ def handle_node_object(node_object)
     # elsif attribute_value.class == Array && attribute_value[0]
 
     # PLAIN STRING ATTRIBUTES
-    elsif %w(op).include?(key)
+    elsif %w(op value).include?(key)
       hash[key] = value
       puts "STRING"
     # LOCATION ARRAY
@@ -26,7 +26,6 @@ def handle_node_object(node_object)
       hash["loc"] = value
       puts "LOC"
     end
-
   end
   { "node" => node_object.class::UAST_NODE_NAME }.merge(main_part)
 end
