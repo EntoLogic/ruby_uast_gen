@@ -10,21 +10,27 @@
 # Ruby uni-ast-gen
 
 def handle_node_object(node_object)
-  main_part = transform_hash(node_object.to_hash) do |hash, key, value|
+  main_part = transform_hash(node_object.to_hash) do |hash, attr_name, attr_value|
     # NESTED OBJECTS
-    if (%w(left right).include?(key)) && (value.class <= UastNode)
-      puts "UAST OBJECT"
-      hash[key] = handle_node_object(value)
-    # elsif attribute_value.class == Array && attribute_value[0]
+    if (%w(left right).include?(attr_name)) && (attr_value.class <= UastNode)
+      hash[attr_name] = handle_node_object(attr_value)
+    # elsif attr_value.class == Array && attr_attr_value[0]
 
     # PLAIN STRING ATTRIBUTES
-    elsif %w(op value).include?(key)
-      hash[key] = value
-      puts "STRING"
+    elsif %w(op variable).include?(attr_name)
+      hash[attr_name] = attr_value
+
     # LOCATION ARRAY
-    elsif key == "loc"
-      hash["loc"] = value
-      puts "LOC"
+    elsif attr_name == "loc"
+      hash["loc"] = attr_value
+
+    # EITHER LITERAL OR NESTED OBJECT
+    elsif %w(value).include?(attr_name)
+      if attr_value.is_a? String
+
+      elsif attr_value.class <= UastNode
+        hash[attr_name] = handle_node_object(attr_value)
+      end
     end
   end
   { "node" => node_object.class::UAST_NODE_NAME }.merge(main_part)

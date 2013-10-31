@@ -72,8 +72,8 @@ class AssignmentNode < UastNode
   UAST_NODE_NAME = "Assignment"
   def initialize(node)
     super(node)
-    @var_name = UastNode.uast_node_from_rtree(@node[1])
-    @value_expression = UastNode.uast_node_from_rtree(@node[2])
+    @variable = UastNode.uast_node_from_rtree(@node[1])
+    @value = UastNode.uast_node_from_rtree(@node[2])
   end
 end
 
