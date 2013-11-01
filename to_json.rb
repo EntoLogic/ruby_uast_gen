@@ -12,7 +12,7 @@
 def handle_node_object(node_object)
   main_part = transform_hash(node_object.to_hash) do |hash, attr_name, attr_value|
     # NESTED OBJECTS
-    if (%w(left right).include?(attr_name)) && (attr_value.class <= UastNode)
+    if (%w(left right).include?(attr_name)) && (attr_value.is_a? UastNode)
       hash[attr_name] = handle_node_object(attr_value)
     # elsif attr_value.class == Array && attr_attr_value[0]
 
@@ -26,8 +26,8 @@ def handle_node_object(node_object)
 
     # EITHER LITERAL OR NESTED OBJECT
     elsif %w(value).include?(attr_name)
-      if attr_value.is_a? String
-
+      if (attr_value.is_a? String) || (attr_value.is_a? Integer)
+        hash[attr_name] = attr_value.to_s
       elsif attr_value.class <= UastNode
         hash[attr_name] = handle_node_object(attr_value)
       end

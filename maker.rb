@@ -29,8 +29,8 @@ end
 
 require_relative 'ast_node_classes.rb'
 require_relative 'to_json.rb'
-abort("Must supply a program") unless ARGV[0]
 
+abort("Must supply a program") unless ARGV[0]
 input_file = File.read ARGV[0] + ".rb"
 ripper_ast = Ripper.sexp(input_file)
 
@@ -44,7 +44,7 @@ base_node_list = ripper_ast[1].map do |stmt|
 end
 
 pp base_node_list
-hash_uast["Program"] = handle_array_of_nodes(base_node_list)
-uast_json = hash_uast.to_json
-puts uast_json
 
+hash_uast["Program"] = handle_array_of_nodes(base_node_list)
+# uast_json = hash_uast.to_json
+puts JSON.pretty_generate(hash_uast)
