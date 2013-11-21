@@ -17,7 +17,11 @@ def handle_node_object(node_object)
     # elsif attr_value.class == Array && attr_attr_value[0]
 
     # PLAIN STRING ATTRIBUTES
-    elsif %w(op variable).include?(attr_name)
+    elsif %w(op variable name).include?(attr_name)
+      hash[attr_name] = attr_value
+
+    # ARRAY's OF STRINGS
+    elsif %w(arguments).include?(attr_name)
       hash[attr_name] = attr_value
 
     # LOCATION ARRAY

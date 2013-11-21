@@ -22,6 +22,20 @@ def var_field_str(vf)
   vf[1][1]
 end
 
+def remove_if_parens(node)
+  return remove_if_parens(node[1]) if node[0] == :paren
+  node
+end
+
+def param_node_to_strings(params_node)
+  # Params may be written with or without parens in ruby, i.e.
+  # [:params, nil, nil] or [:paren, [:params, nil, nil]] so
+  params_node[1].map do |p_n|
+    return nil unless p_n
+    p_n[1] if p_n[0] == :@ident
+  end.compact
+end
+
 class UastNode
   attr_reader :child_nodes
 
@@ -33,7 +47,7 @@ class UastNode
   def self.uast_node_from_rtree(rnode)
     case rnode[0]
       when :binary    then BinaryNode.new(rnode)
-      when :def       then DefineNode.new(rnode)
+      when :def       then DefineMethodNode.new(rnode)
       when :assign    then AssignmentNode.new(rnode)
       when :var_field then var_field_str(rnode)
 
@@ -84,7 +98,7 @@ end
 #   end
 # end
 
-class IntLitNode < UastNode  
+class IntLitNode < UastNode
   UAST_NODE_NAME = "IntLit"
   def initialize(node)
     super(node)
@@ -92,8 +106,11 @@ class IntLitNode < UastNode
   end
 end
 
-class DefineNode < UastNode
+class DefineMethodNode < UastNode
+  UAST_NODE_NAME = "FuncDecl"
   def initialize(node)
     super(node)
+    @name = node[1][1] # :@ident, "hello", [line, col]
+    @arguments = param_node_to_strings(remove_if_parens(node[2]))
   end
 end

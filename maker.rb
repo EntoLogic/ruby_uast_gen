@@ -31,7 +31,7 @@ require_relative 'ast_node_classes.rb'
 require_relative 'to_json.rb'
 
 abort("Must supply a program") unless ARGV[0]
-input_file = File.read ARGV[0] + ".rb"
+input_file = File.read ARGV[0]
 ripper_ast = Ripper.sexp(input_file)
 
 hash_uast = {
