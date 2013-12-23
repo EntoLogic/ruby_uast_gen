@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 #  ________           _          _____                     _          
 # |_   __  |         / |_       |_   _|                   (_)         
 #   | |_ \_| _ .--. `| |-' .--.   | |       .--.   .--./) __   .---.  
@@ -30,8 +31,16 @@ end
 require_relative 'ast_node_classes.rb'
 require_relative 'to_json.rb'
 
-abort("Must supply a program") unless ARGV[0]
-input_file = File.read ARGV[0]
+if ARGV[0]
+  begin
+    input_file = File.read ARGV[0]
+  rescue
+    abort("Could not read file '" + ARGV[0] + "'")
+  end
+else
+  input_file = STDIN.read
+end
+
 ripper_ast = Ripper.sexp(input_file)
 
 hash_uast = {
@@ -39,12 +48,14 @@ hash_uast = {
   "Program" => []
 }
 
-base_node_list = ripper_ast[1].map do |stmt|
-  UastNode.uast_node_from_rtree(stmt)
-end
-
-pp base_node_list
+base_node_list = statements_list(ripper_ast[1])
 
 hash_uast["Program"] = handle_array_of_nodes(base_node_list)
-# uast_json = hash_uast.to_json
-puts JSON.pretty_generate(hash_uast)
+
+if ARGV.include?("-d")
+  pp ripper_ast
+  pp base_node_list
+  puts JSON.pretty_generate(hash_uast)
+else
+  STDOUT.print(hash_uast.to_json)
+end

@@ -9,6 +9,12 @@
 #
 # Ruby uni-ast-gen
 
+def statements_list(slist)
+  slist.map do |stmt|
+    UastNode.uast_node_from_rtree(stmt)
+  end
+end
+
 def ruby_op_name(op_sym)
   case op_sym
   when :+ then "add"
@@ -67,6 +73,7 @@ class UastNode
 end
 
 class UnknowenNode < UastNode
+  UAST_NODE_NAME = "Unknowen"
   def initialize(node)
     super(node)
   end
@@ -112,5 +119,7 @@ class DefineMethodNode < UastNode
     super(node)
     @name = node[1][1] # :@ident, "hello", [line, col]
     @arguments = param_node_to_strings(remove_if_parens(node[2]))
+    # node[3][1].delete([:void_stmt])
+    @body = statements_list(node[3][1])
   end
 end
