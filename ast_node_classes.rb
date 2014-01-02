@@ -47,7 +47,9 @@ class UastNode
 
   def initialize(node)
     @node = node
-    @loc  = node.last if node[0][0] == "@"
+
+    # @-sign ones Loc only seems
+    @loc  = {start: node.last} if node[0][0] == "@"
   end
 
   def self.uast_node_from_rtree(rnode)
