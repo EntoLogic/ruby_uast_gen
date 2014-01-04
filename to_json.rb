@@ -12,12 +12,12 @@
 def handle_node_object(node_object)
   main_part = transform_hash(node_object.to_hash) do |hash, attr_name, attr_value|
     # NESTED OBJECTS
-    if (%w(left right).include?(attr_name)) && (attr_value.is_a? UastNode)
+    if (%w(left right variable).include?(attr_name)) && (attr_value.is_a? UastNode)
       hash[attr_name] = handle_node_object(attr_value)
     # elsif attr_value.class == Array && attr_attr_value[0]
 
     # PLAIN STRING ATTRIBUTES
-    elsif %w(op variable name).include?(attr_name)
+    elsif %w(op name var).include?(attr_name)
       hash[attr_name] = attr_value
 
     # ARRAY's OF STRINGS

@@ -24,9 +24,9 @@ def ruby_op_name(op_sym)
   end
 end
 
-def var_field_str(vf)
-  vf[1][1]
-end
+# def var_field_str(vf)
+#   vf[1][1]
+# end
 
 def remove_if_parens(node)
   return remove_if_parens(node[1]) if node[0] == :paren
@@ -53,18 +53,23 @@ class UastNode
     @node = node
 
     # Loc seems to only be in @-sign ones
-    @loc = {start: node.last} if node[0][0] == "@"
+    addLocationArray(node.last) if node[0][0] == "@"
+  end
+
+  def addLocationArray(loc)
+    @loc = {start: loc}
     # offset line location by -1 to comply with UAST
     @loc[:start][0] -= 1 if @loc && @loc[:start].is_a?(Array)
   end
 
   def self.uast_node_from_rtree(rnode)
     case rnode[0]
-      when :binary    then BinaryNode.new(rnode)
-      when :def       then DefineMethodNode.new(rnode)
-      when :assign    then AssignmentNode.new(rnode)
-      when :var_field then var_field_str(rnode)
-      when :void_stmt then nil
+      when :binary     then BinaryNode.new(rnode)
+      when :def        then DefineMethodNode.new(rnode)
+      when :assign     then AssignmentNode.new(rnode)
+      when :var_ref    then VarAccessNode.new(rnode)
+      when :var_field  then VarAccessNode.new(rnode)
+      when :void_stmt  then nil
 
       # @-sign ones (I think they are for literals)
       when :@int      then IntLitNode.new(rnode)
@@ -130,5 +135,14 @@ class DefineMethodNode < UastNode
     @arguments = param_node_to_strings(remove_if_parens(node[2]))
     stmt_list = statements_list(node[3][1]).compact
     @body = stmt_list.any? ? stmt_list : []
+  end
+end
+
+class VarAccessNode < UastNode
+  UAST_NODE_NAME = "VarAccess"
+  def initialize(node)
+    super(node)
+    addLocationArray(node[1][2])
+    @var = node[1][1]
   end
 end
