@@ -36,10 +36,14 @@ end
 def param_node_to_strings(params_node)
   # Params may be written with or without parens in ruby, i.e.
   # [:params, nil, nil] or [:paren, [:params, nil, nil]] so
-  params_node[1].map do |p_n|
-    return nil unless p_n
-    p_n[1] if p_n[0] == :@ident
-  end.compact
+  if params_node[1]
+    params_node[1].map do |p_n|
+      return nil unless p_n
+      p_n[1] if p_n[0] == :@ident
+    end.compact
+  else
+    []
+  end
 end
 
 class UastNode
@@ -60,12 +64,13 @@ class UastNode
       when :def       then DefineMethodNode.new(rnode)
       when :assign    then AssignmentNode.new(rnode)
       when :var_field then var_field_str(rnode)
+      when :void_stmt then nil
 
       # @-sign ones (I think they are for literals)
       when :@int      then IntLitNode.new(rnode)
 
-      # Unknowen
-      else UnknowenNode.new(rnode)
+      # Unknown
+      else UnknownNode.new(rnode)
     end
   end
 
@@ -76,8 +81,8 @@ class UastNode
   end
 end
 
-class UnknowenNode < UastNode
-  UAST_NODE_NAME = "Unknowen"
+class UnknownNode < UastNode
+  UAST_NODE_NAME = "Unknown"
   def initialize(node)
     super(node)
   end
@@ -123,7 +128,7 @@ class DefineMethodNode < UastNode
     super(node)
     @name = node[1][1] # :@ident, "hello", [line, col]
     @arguments = param_node_to_strings(remove_if_parens(node[2]))
-    # node[3][1].delete([:void_stmt])
-    @body = statements_list(node[3][1])
+    stmt_list = statements_list(node[3][1]).compact
+    @body = stmt_list.any? ? stmt_list : []
   end
 end
