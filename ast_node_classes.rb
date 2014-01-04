@@ -48,8 +48,10 @@ class UastNode
   def initialize(node)
     @node = node
 
-    # @-sign ones Loc only seems
-    @loc  = {start: node.last} if node[0][0] == "@"
+    # Loc seems to only be in @-sign ones
+    @loc = {start: node.last} if node[0][0] == "@"
+    # offset line location by -1 to comply with UAST
+    @loc[:start][0] -= 1 if @loc && @loc[:start].is_a?(Array)
   end
 
   def self.uast_node_from_rtree(rnode)
