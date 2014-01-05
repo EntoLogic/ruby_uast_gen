@@ -44,11 +44,6 @@ def remove_if_parens(node)
   node
 end
 
-def remove_if_args_parens(node)
-  
-  node
-end
-
 def param_node_to_strings(params_node)
   # Params may be written with or without parens in ruby, i.e.
   # [:params, nil, nil] or [:paren, [:params, nil, nil]] so
@@ -84,7 +79,7 @@ class UastNode
 
   def self.uast_node_from_rtree(rnode)
     case rnode[0]
-    # when :paren
+      when :paren              then uast_node_from_rtree(rnode[1][0])
       when :binary             then expression_type(rnode)
 
       when :def                then DefineMethodNode.new(rnode)
@@ -205,7 +200,6 @@ class FunctionCallNode < UastNode
     elsif node[1][0] == :@ident
       @name = node[1][1]
       addLocationArray(node[1].last)
-      print node[1]
     end
     args_node = node[2]
     args_block_node = args_node[0] == :arg_paren ? args_node[1] : args_node

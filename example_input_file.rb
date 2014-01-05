@@ -1,5 +1,5 @@
-def hello(name)
-
+def hello(f)
+	3+f
 end
 
-hello 9, 8
+hello((3)+9)
