@@ -44,6 +44,11 @@ def remove_if_parens(node)
   node
 end
 
+def remove_if_args_parens(node)
+  
+  node
+end
+
 def param_node_to_strings(params_node)
   # Params may be written with or without parens in ruby, i.e.
   # [:params, nil, nil] or [:paren, [:params, nil, nil]] so
@@ -67,7 +72,7 @@ class UastNode
   def initialize(node)
     @node = node
 
-    # Loc seems to only be in @-sign ones
+    # Loc seems to only be in @-sign ones, overrided by some uast nodes
     addLocationArray(node.last) if node[0][0] == "@"
   end
 
@@ -79,12 +84,18 @@ class UastNode
 
   def self.uast_node_from_rtree(rnode)
     case rnode[0]
-      when :binary     then expression_type(rnode)
-      when :def        then DefineMethodNode.new(rnode)
-      when :assign     then AssignmentNode.new(rnode)
-      when :var_ref    then VarAccessNode.new(rnode)
-      when :var_field  then VarAccessNode.new(rnode)
-      when :void_stmt  then nil
+    # when :paren
+      when :binary             then expression_type(rnode)
+
+      when :def                then DefineMethodNode.new(rnode)
+      when :method_add_arg     then FunctionCallNode.new(rnode)
+      when :command            then FunctionCallNode.new(rnode)
+
+      when :assign             then AssignmentNode.new(rnode)
+      when :var_ref            then VarAccessNode.new(rnode)
+      when :var_field          then VarAccessNode.new(rnode)
+
+      when :void_stmt          then nil
 
       # @-sign ones (I think they are for literals)
       when :@int      then IntLitNode.new(rnode)
@@ -171,6 +182,7 @@ class DefineMethodNode < UastNode
     @arguments = param_node_to_strings(remove_if_parens(node[2]))
     stmt_list = statements_list(node[3][1]).compact
     @body = stmt_list.any? ? stmt_list : []
+    addLocationArray(node[1].last)
   end
 end
 
@@ -178,7 +190,28 @@ class VarAccessNode < UastNode
   UAST_NODE_NAME = "VarAccess"
   def initialize(node)
     super(node)
-    addLocationArray(node[1][2])
+    addLocationArray(node[1].last)
     @var = node[1][1]
+  end
+end
+
+class FunctionCallNode < UastNode
+  UAST_NODE_NAME = "FunctionCall"
+  def initialize(node)
+    super(node)
+    if node[1][0] == :fcall
+      @name = node[1][1][1]
+      addLocationArray(node[1][1].last)
+    elsif node[1][0] == :@ident
+      @name = node[1][1]
+      addLocationArray(node[1].last)
+      print node[1]
+    end
+    args_node = node[2]
+    args_block_node = args_node[0] == :arg_paren ? args_node[1] : args_node
+
+    @args = args_block_node[1].map do |a|
+      UastNode.uast_node_from_rtree(a)
+    end
   end
 end

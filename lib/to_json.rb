@@ -25,7 +25,7 @@ def handle_node_object(node_object)
       hash[attr_name] = attr_value
 
     # ARRAY OF STATEMENTS
-    elsif attr_name == "body"
+    elsif %w(args body).include?(attr_name)
       hash[attr_name] = handle_array_of_nodes(attr_value)
 
     # LOCATION ARRAY
