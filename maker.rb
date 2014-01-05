@@ -28,8 +28,8 @@ def transform_hash(original, options={}, &block)
   # Thanks to Avdi Grimm for this handi method.
 end
 
-require_relative 'ast_node_classes.rb'
-require_relative 'to_json.rb'
+require_relative 'lib/ast_node_classes'
+require_relative 'lib/to_json'
 
 if ARGV[0]
   begin

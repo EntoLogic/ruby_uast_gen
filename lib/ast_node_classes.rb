@@ -15,14 +15,25 @@ def statements_list(slist)
   end
 end
 
-def ruby_op_name(op_sym)
-  case op_sym
-  when :+ then "add"
-  when :- then "subtract"
-  when :* then "multiply"
-  when :/ then "divide"
-  end
-end
+# def binary_op_name(op_sym)
+#   case op_sym
+#     when :+ then "add"
+#     when :- then "subtract"
+#     when :* then "multiply"
+#     when :/ then "divide"
+#   end
+# end
+
+# def comparison_op_name(op_sym)
+#   case op_sym
+#     when :> then "greaterThan"
+#     when :< then "lessThan"
+#     when :>= then "greaterOrEqual"
+#     when :<= then "lessOrEqual"
+#     when :== then "equalTo"
+#     when :!= then "notEqual"
+#   end
+# end
 
 # def var_field_str(vf)
 #   vf[1][1]
@@ -46,8 +57,12 @@ def param_node_to_strings(params_node)
   end
 end
 
+require_relative 'uast_module'
+
 class UastNode
   attr_reader :child_nodes
+
+  include UAST
 
   def initialize(node)
     @node = node
@@ -64,7 +79,7 @@ class UastNode
 
   def self.uast_node_from_rtree(rnode)
     case rnode[0]
-      when :binary     then BinaryNode.new(rnode)
+      when :binary     then expression_type(rnode)
       when :def        then DefineMethodNode.new(rnode)
       when :assign     then AssignmentNode.new(rnode)
       when :var_ref    then VarAccessNode.new(rnode)
@@ -76,6 +91,17 @@ class UastNode
 
       # Unknown
       else UnknownNode.new(rnode)
+    end
+  end
+
+  def self.expression_type(rnode)
+    op_string = rnode[2].to_s
+    if UAST::BINARY_OPS.has_key?(op_string)
+      BinaryNode.new(rnode, op_string)
+    elsif UAST::COMPARISON_OPS.has_key?(op_string)
+      ComparisonNode.new(rnode, op_string)
+    else
+      UnknownNode.new(rnode)
     end
   end
 
@@ -95,10 +121,20 @@ end
 
 class BinaryNode < UastNode
   UAST_NODE_NAME = "BinaryExpr"
-  def initialize(node)
+  def initialize(node, op_str)
     super(node)
     @left = UastNode.uast_node_from_rtree(@node[1])
-    @op  = ruby_op_name(@node[2])
+    @op = UAST::BINARY_OPS[op_str]
+    @right  = UastNode.uast_node_from_rtree(@node[3])
+  end
+end
+
+class ComparisonNode < UastNode
+  UAST_NODE_NAME = "ComparisonExpr"
+  def initialize(node, op_string)
+    super(node)
+    @left = UastNode.uast_node_from_rtree(@node[1])
+    @op = UAST::COMPARISON_OPS[op_string]
     @right  = UastNode.uast_node_from_rtree(@node[3])
   end
 end
