@@ -93,7 +93,8 @@ class UastNode
       when :void_stmt          then nil
 
       # @-sign ones (I think they are for literals)
-      when :@int      then IntLitNode.new(rnode)
+      when :@int               then IntLitNode.new(rnode)
+      when :string_literal     then StringLitNode.new(rnode)
 
       # Unknown
       else UnknownNode.new(rnode)
@@ -206,6 +207,17 @@ class FunctionCallNode < UastNode
 
     @args = args_block_node[1].map do |a|
       UastNode.uast_node_from_rtree(a)
+    end
+  end
+end
+
+class StringLitNode < UastNode
+  UAST_NODE_NAME = "StringLit"
+  def initialize(node)
+    super(node)
+    if node[1][0] == :string_content && node[1][1][0] == :@tstring_content
+      @value = node[1][1][1]
+      @loc = node[1][1][2]
     end
   end
 end
