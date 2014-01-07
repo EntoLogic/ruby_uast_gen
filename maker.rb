@@ -45,12 +45,17 @@ ripper_ast = Ripper.sexp(input_file)
 
 hash_uast = {
   "Meta" => { "Language" => "Ruby" },
-  "Program" => []
+  "Program" => [],
+  "Errors" => [],
+  "Warnings" => [],
 }
 
-base_node_list = statements_list(ripper_ast[1])
-
-hash_uast["Program"] = handle_array_of_nodes(base_node_list)
+if ripper_ast
+  base_node_list = statements_list(ripper_ast[1])
+  hash_uast["Program"] = handle_array_of_nodes(base_node_list)
+else
+  hash_uast["Errors"].push("Errors parsing code")
+end
 
 if ARGV.include?("-d")
   pp ripper_ast
