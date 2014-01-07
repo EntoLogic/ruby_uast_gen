@@ -217,7 +217,7 @@ class StringLitNode < UastNode
     super(node)
     if node[1][0] == :string_content && node[1][1][0] == :@tstring_content
       @value = node[1][1][1]
-      @loc = addLocationArray(node[1][1][2])
+      addLocationArray(node[1][1].last)
     end
   end
 end
