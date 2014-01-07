@@ -11,7 +11,6 @@
 # Ruby uni-ast-gen
 
 require 'ripper'
-require 'ap'
 require 'pp'
 require 'json'
 
