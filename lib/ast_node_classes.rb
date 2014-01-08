@@ -89,6 +89,7 @@ class UastNode
       when :assign             then AssignmentNode.new(rnode)
       when :var_ref            then VarAccessNode.new(rnode)
       when :var_field          then VarAccessNode.new(rnode)
+      when :vcall              then VarAccessNode.new(rnode)
 
       when :void_stmt          then nil
 
@@ -205,9 +206,7 @@ class FunctionCallNode < UastNode
     args_node = node[2]
     args_block_node = args_node[0] == :arg_paren ? args_node[1] : args_node
 
-    @args = args_block_node[1].map do |a|
-      UastNode.uast_node_from_rtree(a)
-    end
+    @args = (args_block_node && args_block_node[1].map { |a| UastNode.uast_node_from_rtree(a) }) || []
   end
 end
 
