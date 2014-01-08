@@ -97,6 +97,8 @@ class UastNode
       when :@int               then IntLitNode.new(rnode)
       when :string_literal     then StringLitNode.new(rnode)
 
+      when :array              then ArrayLitNode.new(rnode)
+
       # Unknown
       else UnknownNode.new(rnode)
     end
@@ -219,4 +221,13 @@ class StringLitNode < UastNode
       addLocationArray(node[1][1].last)
     end
   end
+end
+
+class ArrayLitNode < UastNode
+  UAST_NODE_NAME = "ArrayLit"
+  def initialize(node)
+    super(node)
+    @contents = statements_list(node[1])
+  end
+
 end

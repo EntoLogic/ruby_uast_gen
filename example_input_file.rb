@@ -1,4 +1,1 @@
-hello 5
-hello()
-hello = 9
-hello
+[8+9, "hi"]
